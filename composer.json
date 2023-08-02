@@ -1,0 +1,23 @@
+{
+    "name": "emedia/app",
+    "description": "E-Media Code Example",
+    "type": "microservice",
+    "autoload": {
+        "psr-4": {
+            "Emedia\\App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ethan Adams"
+        }
+    ],
+    "require-dev": {
+        "phalcon/devtools": "^4.0"
+    },
+    "require": {
+        "guzzlehttp/guzzle": "^7.7",
+        "ext-phalcon": "^4.0",
+        "phalcon/incubator": "4.0.0-alpha.1"
+    }
+}

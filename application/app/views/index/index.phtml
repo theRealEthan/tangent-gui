@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Details</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        /* Custom Styles */
+        /*... Your styles ...*/
+    </style>
+</head>
+<body>
+<h1>Employees</h1>
+<h2 id="employee_count">There are ... employees</h2>
+<br>
+<input type="text" placeholder="Search" class="form-control">
+<br>
+<select name="filter" class="form-control">
+    <option value="last_name">Last Name</option>
+    <option value="contact_number">Contact Number</option>
+    <option value="first_name">First Name</option>
+</select>
+<br>
+<table id="employee_table" class="table table-responsive">
+    <tr>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Contact Number</th>
+    </tr>
+</table>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    jQuery.noConflict();
+    (function($) {
+        $(document).ready(function() {
+            $.ajax({
+                url: 'http://localhost:8080/employee/all',
+                type: 'GET',
+                success: function(response) {
+                    var employee_data = '';
+                    $.each(response, function(key, value){
+                        employee_data += '<tr>';
+                        employee_data += '<td>'+value.first_name+'</td>';
+                        employee_data += '<td>'+value.last_name+'</td>';
+                        employee_data += '<td>'+value.contact_number+'</td>';
+                        employee_data += '</tr>';
+                    });
+                    $('#employee_table').append(employee_data);
+                    $("#employee_count").text("There are " + response.length + " employees");
+                }
+            });
+        });
+    })(jQuery);
+</script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+</body>
+</html>
