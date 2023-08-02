@@ -1,6 +1,6 @@
 {
-    "name": "emedia/app",
-    "description": "E-Media Code Example",
+    "name": "tangent/Gui",
+    "description": "tangent Code Example",
     "type": "microservice",
     "autoload": {
         "psr-4": {
