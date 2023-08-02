@@ -43,7 +43,7 @@
                 success: function(response) {
                     var employee_data = '';
                     $.each(response, function(key, value){
-                        employee_data += '<tr>';
+                        employee_data += '<tr class="employee-row" data-id="'+value.employee_id+'">';
                         employee_data += '<td>'+value.first_name+'</td>';
                         employee_data += '<td>'+value.last_name+'</td>';
                         employee_data += '<td>'+value.contact_number+'</td>';
@@ -51,6 +51,11 @@
                     });
                     $('#employee_table').append(employee_data);
                     $("#employee_count").text("There are " + response.length + " employees");
+
+                    $(".employee-row").click(function() {
+                        var employeeId = $(this).data('id');
+                        window.location.href = 'http://localhost:8081/employee/view/' + employeeId;
+                    });
                 }
             });
         });
