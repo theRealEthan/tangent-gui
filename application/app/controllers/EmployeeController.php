@@ -5,6 +5,11 @@ use GuzzleHttp\Client;
 class EmployeeController extends ControllerBase
 {
 
+    public function createAction()
+    {
+
+    }
+
     public function viewAction()
     {
 
