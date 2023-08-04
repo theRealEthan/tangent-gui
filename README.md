@@ -1,4 +1,4 @@
-# Movie Recommendation GUI
+# Employee Management GUI
 
 This GUI application makes use of the Employee API
 
@@ -20,9 +20,7 @@ For more information, please see the following resources:
 * [Phalcon PHP](https://phalcon.io/)
 
 ## Contact
-
 If you have any questions, please contact me at ethanatyahoo.com@gmail.com
 
 ## Extra Details
-
 The GUI application is a simple Phalcon PHP application that uses the Bootstrap framework.
