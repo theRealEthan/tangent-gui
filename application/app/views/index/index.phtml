@@ -39,6 +39,7 @@
         <th>First Name</th>
         <th>Last Name</th>
         <th>Contact Number</th>
+        <th>View</th>
     </tr>
 </table>
 
@@ -60,31 +61,41 @@
                 url: 'http://localhost:8080/employee/all',
                 type: 'GET',
                 success: function(response) {
-                    var employee_data = '';
-                    var table_heading = '<tr>'+
-                        '<th>First Name</th>'+
-                        '<th>Last Name</th>'+
-                        '<th>Contact Number</th>'+
-                        '<th>View</th>'+
-                        '</tr>';
-                    var isFirstRow = true;
-                    $.each(response, function(key, value){
-                        if (isFirstRow) {
-                            employee_data += table_heading;
-                            isFirstRow = false;
-                        }
-
-                        var employee_id = value.employee_id;
-
-                        employee_data += '<tr>'+
-                            '<td>'+value.first_name+'</td>'+
-                            '<td>'+value.last_name+'</td>'+
-                            '<td>'+value.contact_number+'</td>'+
-                            '<td><button type="button" class="btn btn-primary" onclick="viewEmployee(\''+employee_id+'\')">View</button></td>'+
+                    if (response.length === 0) {
+                        // No employees found
+                        $('#employee_count').text('No Employees found');
+                    } else
+                    {
+                        var employee_data = '';
+                        var table_heading = '<tr>'+
+                            '<th>First Name</th>'+
+                            '<th>Last Name</th>'+
+                            '<th>Contact Number</th>'+
+                            '<th>View</th>'+
                             '</tr>';
-                    });
-                    $('#employee_table').html(employee_data);
-                    $("#employee_count").text("There are " + response.length + " employees");
+                        var isFirstRow = true;
+                        $.each(response, function(key, value){
+                            if (isFirstRow) {
+                                employee_data += table_heading;
+                                isFirstRow = false;
+                            }
+
+                            var employee_id = value.employee_id;
+
+                            employee_data += '<tr>'+
+                                '<td>'+value.first_name+'</td>'+
+                                '<td>'+value.last_name+'</td>'+
+                                '<td>'+value.contact_number+'</td>'+
+                                '<td><button type="button" class="btn btn-primary" onclick="viewEmployee(\''+employee_id+'\')">View</button></td>'+
+                                '</tr>';
+                        });
+                        $('#employee_table').html(employee_data);
+                        $("#employee_count").text("There are " + response.length + " employees");
+                    }
+                },
+                error: function(error) {
+                    // An error occurred
+                    $('#employee_count').text('An Error Occurred');
                 }
             });
 
