@@ -2,6 +2,11 @@
 <html>
 <head>
     <title>View Employee</title>
+    <style>
+        .btn-space {
+            margin-right: 10px;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
@@ -19,6 +24,10 @@
         <div class="form-group">
             <label for="contact_number">Contact Number:</label>
             <input type="text" class="form-control" id="contact_number" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" class="form-control" id="email" required>
         </div>
         <div class="form-group">
             <label for="date_of_birth">Date of Birth:</label>
@@ -45,8 +54,10 @@
             <h3>Skills</h3>
         </div>
 
-        <button type="button" class="btn btn-primary" id="add-skill">Add Skill</button>
-        <button type="submit" class="btn btn-success">Update Employee</button>
+        <button type="button" class="btn btn-primary btn-sm btn-space" id="add-skill">Add Skill</button>
+        <button type="submit" class="btn btn-success btn-space">Update Employee</button>
+        <button type="button" class="btn btn-danger" id="delete-employee">Delete</button>
+        <button type="reset" class="btn btn-secondary btn-space" id="reset-form">Cancel</button>
     </form>
 
 </div>
@@ -55,18 +66,57 @@
     var employeeId = window.location.pathname.split('/').pop();
     var seniorityRatings = [];
 
+    function showAlert(title, text, icon, confirmButtonText, callback) {
+        Swal.fire({
+            title: title,
+            text: text,
+            icon: icon,
+            confirmButtonText: confirmButtonText
+        }).then(callback);
+    }
+
     function fetchSeniorityRatings() {
-        $.ajax({
+        return $.ajax({
             type: 'GET',
-            url: 'http://localhost:8080/ratings/all',
-            success: function(response) {
-                seniorityRatings = response;
-            },
-            error: function(error) {
-                console.error(error);
-                alert('Error fetching seniority ratings');
-            }
+            url: 'http://localhost:8080/ratings/all'
         });
+    }
+
+    function fetchEmployeeData() {
+        return $.ajax({
+            type: 'GET',
+            url: 'http://localhost:8080/employee/id/' + employeeId
+        });
+    }
+
+    function updateEmployeeData(data) {
+        return $.ajax({
+            type: 'PUT',
+            url: 'http://localhost:8080/employee/update/' + employeeId,
+            data: JSON.stringify(data),
+            contentType: 'application/json'
+        });
+    }
+
+    function updateEmployeeData(data) {
+        return $.ajax({
+            type: 'PUT',
+            url: 'http://localhost:8080/employee/update/' + employeeId,
+            data: JSON.stringify(data),
+            contentType: 'application/json'
+        });
+    }
+
+    function deleteEmployeeData() {
+        return $.ajax({
+            type: 'DELETE',
+            url: 'http://localhost:8080/employee/delete/' + employeeId
+        });
+    }
+
+    function resetForm() {
+        $('#edit-user-form')[0].reset();
+        $('.skill-group:gt(0)').remove();
     }
 
     function addSkillGroup(skill) {
@@ -90,7 +140,7 @@
             seniorityOptionsHtml+
             '</select>'+
             '</div>'+
-            '<button type="button" class="btn btn-danger remove-skill">Remove Skill</button>'+
+            '<button type="button" class="btn btn-warning btn-sm remove-skill">Remove Skill</button>'+
             '</div>'
         );
 
@@ -101,34 +151,111 @@
         $('#skill-area').append(skillGroup);
     }
 
+    function fillFormFields(data) {
+        $('#first_name').val(data.first_name);
+        $('#last_name').val(data.last_name);
+        $('#contact_number').val(data.contact_number);
+        $('#email').val(data.email);
+        $('#date_of_birth').val(new Date(data.date_of_birth).toISOString().substring(0, 10));
+        $('#street_address').val(data.street_address);
+        $('#city').val(data.city);
+        $('#country').val(data.country);
+        $('#postal_code').val(data.postal_code);
+
+        data.skills.forEach(function(skill) {
+            addSkillGroup(skill);
+        });
+    }
+
+    function submitForm() {
+        var data = {
+            first_name: $('#first_name').val(),
+            last_name: $('#last_name').val(),
+            contact_number: $('#contact_number').val(),
+            email: $('#email').val(),
+            date_of_birth: $('#date_of_birth').val(),
+            street_address: $('#street_address').val(),
+            city: $('#city').val(),
+            country: $('#country').val(),
+            postal_code: $('#postal_code').val(),
+            skills: []
+        };
+
+        $('.skill-group').each(function() {
+            var skill = {
+                skill_name: $(this).find('.skill_name').val(),
+                years_experience: $(this).find('.years_experience').val(),
+                seniority_rating_id: $(this).find('.seniority_rating_id').val()
+            };
+
+            var skillId = $(this).data('skill-id');
+            if (skillId) {
+                skill.id = skillId;
+            }
+
+            data.skills.push(skill);
+        });
+
+        updateEmployeeData(data)
+            .done(function(response) {
+                showAlert('Success!', 'Employee updated successfully', 'success', 'OK', function(result) {
+                    if (result.isConfirmed) {
+                        window.location.href = '/';
+                    }
+                });
+            })
+            .fail(function(error) {
+                console.error(error);
+                showAlert('Error!', 'Failed to update employee data', 'error', 'OK');
+            });
+    }
+
 
     $(document).ready(function() {
-        fetchSeniorityRatings();
 
-        // Get employee data and populate form
-        $.ajax({
-            type: 'GET',
-            url: 'http://localhost:8080/employee/id/' + employeeId,
-            success: function(response) {
-                // Fill in form fields with response data
-                $('#first_name').val(response.first_name);
-                $('#last_name').val(response.last_name);
-                $('#contact_number').val(response.contact_number);
-                $('#date_of_birth').val(new Date(response.date_of_birth).toISOString().substring(0, 10));
-                $('#street_address').val(response.street_address);
-                $('#city').val(response.city);
-                $('#country').val(response.country);
-                $('#postal_code').val(response.postal_code);
-
-                // For skills, create a skill group for each skill
-                response.skills.forEach(function(skill) {
-                    addSkillGroup(skill);
-                });
-            },
-            error: function(error) {
+        fetchSeniorityRatings()
+            .done(function(response) {
+                seniorityRatings = response;
+            })
+            .fail(function(error) {
                 console.error(error);
-                alert('Error fetching employee data');
-            }
+                showAlert('Error!', 'Error fetching seniority ratings', 'error', 'OK');
+            });
+
+        fetchEmployeeData()
+            .done(function(response) {
+                fillFormFields(response);
+            })
+            .fail(function(error) {
+                console.error(error);
+                showAlert('Error!', 'Error fetching employee data', 'error', 'OK');
+            });
+
+        $('#reset-form').click(function() {
+            resetForm();
+            fetchEmployeeData()
+                .done(function(response) {
+                    fillFormFields(response);
+                })
+                .fail(function(error) {
+                    console.error(error);
+                    showAlert('Error!', 'Error fetching employee data', 'error', 'OK');
+                });
+        });
+
+        $('#delete-employee').click(function() {
+            deleteEmployeeData()
+                .done(function(response) {
+                    showAlert('Success!', 'Employee deleted successfully', 'success', 'OK', function(result) {
+                        if (result.isConfirmed) {
+                            window.location.href = '/';
+                        }
+                    });
+                })
+                .fail(function(error) {
+                    console.error(error);
+                    showAlert('Error!', 'Failed to delete employee data', 'error', 'OK');
+                });
         });
 
         $('#add-skill').click(function() {
@@ -141,65 +268,9 @@
 
         $('#edit-user-form').submit(function(e) {
             e.preventDefault();
-
-            // Prepare data
-            var data = {
-                first_name: $('#first_name').val(),
-                last_name: $('#last_name').val(),
-                contact_number: $('#contact_number').val(),
-                date_of_birth: $('#date_of_birth').val(),
-                street_address: $('#street_address').val(),
-                city: $('#city').val(),
-                country: $('#country').val(),
-                postal_code: $('#postal_code').val(),
-                skills: []
-            };
-
-            $('.skill-group').each(function() {
-                var skill = {
-                    skill_name: $(this).find('.skill_name').val(),
-                    years_experience: $(this).find('.years_experience').val(),
-                    seniority_rating_id: $(this).find('.seniority_rating_id').val()
-                };
-
-                var skillId = $(this).data('skill-id');
-                if (skillId) {
-                    skill.id = skillId;
-                }
-
-                data.skills.push(skill);
-            });
-
-            // PUT request
-            $.ajax({
-                type: 'PUT',
-                url: 'http://localhost:8080/employee/update/' + employeeId,
-                data: JSON.stringify(data),
-                contentType: 'application/json',
-                success: function(response) {
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Employee updated successfully',
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = '/';
-                        }
-                    });
-                },
-                error: function(error) {
-                    console.error(error);
-                    alert('Error updating data');
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Failed to update employee data',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
-                }
-            });
+            submitForm();
         });
+
 
 
     });
