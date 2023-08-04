@@ -1,227 +1,142 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Employee</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <!-- Bootstrap Datepicker CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
-    <style>
-        /* Custom Styles */
-        /*... Your styles ...*/
-    </style>
-
+    <title>Form Example</title>
 </head>
 <body>
-<div class="container mt-5">
-    <h1>Create New Employee</h1>
-    <form id="create_employee_form">
-        <div class="row mb-3">
-            <div class="col">
-                <label for="first_name">First Name:</label>
-                <input type="text" id="first_name" name="first_name" class="form-control">
-            </div>
-            <div class="col">
-                <label for="last_name">Last Name:</label>
-                <input type="text" id="last_name" name="last_name" class="form-control">
-            </div>
+<div class="container">
+    <form id="user-form">
+        <div class="form-group">
+            <label for="first_name">First Name:</label>
+            <input type="text" class="form-control" id="first_name" required>
         </div>
-        <div class="mb-3">
+        <div class="form-group">
+            <label for="last_name">Last Name:</label>
+            <input type="text" class="form-control" id="last_name" required>
+        </div>
+        <div class="form-group">
             <label for="contact_number">Contact Number:</label>
-            <input type="text" id="contact_number" name="contact_number" class="form-control">
+            <input type="text" class="form-control" id="contact_number" required>
         </div>
-        <div class="mb-3">
+        <div class="form-group">
             <label for="date_of_birth">Date of Birth:</label>
-            <input type="text" id="date_of_birth" name="date_of_birth" class="form-control datepicker" autocomplete="off">
+            <input type="date" class="form-control" id="date_of_birth" required>
         </div>
-        <div class="mb-3">
+        <div class="form-group">
             <label for="street_address">Street Address:</label>
-            <input type="text" id="street_address" name="street_address" class="form-control">
+            <input type="text" class="form-control" id="street_address" required>
         </div>
-        <div class="row mb-3">
-            <div class="col">
-                <label for="city">City:</label>
-                <input type="text" id="city" name="city" class="form-control">
-            </div>
-            <div class="col">
-                <label for="country">Country:</label>
-                <input type="text" id="country" name="country" class="form-control">
-            </div>
-            <div class="col">
-                <label for="postal_code">Postal Code:</label>
-                <input type="text" id="postal_code" name="postal_code" class="form-control">
-            </div>
+        <div class="form-group">
+            <label for="city">City:</label>
+            <input type="text" class="form-control" id="city" required>
+        </div>
+        <div class="form-group">
+            <label for="country">Country:</label>
+            <input type="text" class="form-control" id="country" required>
+        </div>
+        <div class="form-group">
+            <label for="postal_code">Postal Code:</label>
+            <input type="text" class="form-control" id="postal_code" required>
         </div>
 
-        <div class="mb-3">
-            <label>Skills:</label>
-            <div class="skills-container">
-                <!-- Skill elements will be dynamically added here -->
-            </div>
-        </div>
-        <div class="mb-3">
-            <button type="button" class="btn btn-primary btn-add-skill">Add Skill</button>
+        <div id="skill-area">
+            <h3>Skills</h3>
         </div>
 
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="button" class="btn btn-primary" id="add-skill">Add Skill</button>
+        <button type="submit" class="btn btn-success">Submit</button>
     </form>
 </div>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- Bootstrap Datepicker JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-
 <script>
-    jQuery.noConflict();
-    (function($) {
-        // Function to add a new skill row
-        function addSkillRow() {
-            var skillRow = `
-            <div class="row skill-row">
-                <div class="col">
-                    <input type="text" name="skills[]" class="form-control" placeholder="Enter skill">
-                </div>
-                <div class="col">
-                    <input type="number" name="skills[][years_experience]" class="form-control" placeholder="Years of Experience">
-                </div>
-                <div class="col">
-                    <select name="skills[][seniority_level]" class="form-control"></select>
-                </div>
-                <div class="col">
-                    <button type="button" class="btn btn-danger btn-remove-skill">Remove</button>
-                </div>
-            </div>
-            `;
-            $(".skills-container").append(skillRow);
-            populateSeniorityLevelDropdown();
-        }
 
-        // Function to populate the seniority level dropdown using AJAX call
-        function populateSeniorityLevelDropdown() {
-            $.ajax({
-                url: 'http://localhost:8080/ratings/all',
-                type: 'GET',
-                success: function(response) {
-                    var options = '';
-                    $.each(response, function(index, rating) {
-                        options += '<option value="' + rating.id + '">' + rating.rating + '</option>';
-                    });
-                    $("select[name^='skills[][seniority_level]']").html(options);
-                },
-                error: function() {
-                    // Handle error if AJAX call fails
-                }
-            });
-        }
+    var seniorityRatings = [];
 
+    // Fetch seniority ratings
+    function fetchSeniorityRatings() {
+        $.ajax({
+            type: 'GET',
+            url: 'http://localhost:8080/ratings/all',
+            success: function(response) {
+                seniorityRatings = response;
+            },
+            error: function(error) {
+                console.error(error);
+                alert('Error fetching seniority ratings');
+            }
+        });
+    }
 
-        // Function to collect form data and send the POST request
-        function submitFormData() {
-            var formData = $("#create_employee_form").serializeArray();
-            var skillsData = [];
-            $(".skill-row").each(function() {
-                var skillName = $(this).find("input[name^='skills']").val();
-                var yearsExperience = $(this).find("input[name^='skills[][years_experience]']").val();
-                var seniorityLevelId = $(this).find("select[name^='skills[][seniority_level]']").val();
+    $(document).ready(function() {
 
-                var skillObj = {
-                    "skill_name": skillName,
-                    "years_experience": yearsExperience,
-                    "seniority_rating_id": seniorityLevelId
-                };
-                skillsData.push(skillObj);
-            });
+        fetchSeniorityRatings();
 
-            // Create the final data object to be sent in the POST request
-            var finalData = {
-                "first_name": formData[0].value,
-                "last_name": formData[1].value,
-                "contact_number": formData[2].value,
-                "date_of_birth": formData[3].value,
-                "street_address": formData[4].value,
-                "city": formData[5].value,
-                "country": formData[6].value,
-                "postal_code": formData[7].value,
-                "skills": skillsData
+        $('#add-skill').click(function() {
+            var seniorityOptionsHtml = seniorityRatings.map(function(rating) {
+                return '<option value="' + rating.id + '">' + rating.rating + '</option>';
+            }).join('');
+
+            $('#skill-area').append(
+                '<div class="skill-group row">'+
+                '<div class="form-group col-md-4">'+
+                '<label for="skill_name">Skill Name:</label>'+
+                '<input type="text" class="form-control skill_name" required>'+
+                '</div>'+
+                '<div class="form-group col-md-4">'+
+                '<label for="years_experience">Years Experience:</label>'+
+                '<input type="number" class="form-control years_experience" required>'+
+                '</div>'+
+                '<div class="form-group col-md-4">'+
+                '<label for="seniority_rating_id">Seniority Rating:</label>'+
+                '<select class="form-control seniority_rating_id" required>'+
+                seniorityOptionsHtml+
+                '</select>'+
+                '</div>'+
+                '</div>'
+            );
+        });
+
+        $('#user-form').submit(function(e) {
+            e.preventDefault();
+
+            // Prepare data
+            var data = {
+                first_name: $('#first_name').val(),
+                last_name: $('#last_name').val(),
+                contact_number: $('#contact_number').val(),
+                date_of_birth: $('#date_of_birth').val(),
+                street_address: $('#street_address').val(),
+                city: $('#city').val(),
+                country: $('#country').val(),
+                postal_code: $('#postal_code').val(),
+                skills: []
             };
 
-            // Send the POST request using AJAX
+            $('#skill-area .skill-group').each(function(i, skillGroup) {
+                var skill = {
+                    skill_name: $(skillGroup).find('.skill_name').val(),
+                    years_experience: $(skillGroup).find('.years_experience').val(),
+                    seniority_rating_id: $(skillGroup).find('.seniority_rating_id').val()
+                };
+                data.skills.push(skill);
+            });
+
+            // POST request
             $.ajax({
-                url: 'http://localhost:8080/employee/create',
                 type: 'POST',
+                url: 'http://localhost:8080/employee/create',
+                data: JSON.stringify(data),
                 contentType: 'application/json',
-                data: JSON.stringify(finalData),
                 success: function(response) {
-                    // Handle the success response from the server
-                    console.log(response);
-                    showSuccessAndRedirect();
+                    alert('Data posted successfully');
                 },
-                error: function(xhr, status, error) {
-                    // Handle the error response from the server
-                    console.error(xhr.responseText);
-                    showErrorAndRedirect();
+                error: function(error) {
+                    console.error(error);
+                    alert('Error posting data');
                 }
             });
-        }
-
-        function showSuccessAndRedirect() {
-            // Display success message using a Bootstrap alert
-            $(".container").prepend('<div class="alert alert-success mt-3">Employee created successfully!</div>');
-
-            // Redirect to the home page after a short delay
-            setTimeout(function() {
-                window.location.href = 'http://localhost:8081'; // Replace with your home page URL
-            }, 2000); // Redirect after 2 seconds (adjust the delay as needed)
-        }
-
-        // Function to display error message and redirect to home
-        function showErrorAndRedirect() {
-            // Display error message using a Bootstrap alert
-            $(".container").prepend('<div class="alert alert-danger mt-3">Error creating employee.</div>');
-
-            // Redirect to the home page after a short delay
-            setTimeout(function() {
-                window.location.href = 'http://localhost:8081'; // Replace with your home page URL
-            }, 2000); // Redirect after 2 seconds (adjust the delay as needed)
-        }
-
-        $(document).ready(function() {
-            // Hide the skill container initially
-            $(".skills-container").hide();
-
-            // Add a new skill row when the "Add Skill" button is clicked
-            $(document).on("click", ".btn-add-skill", function() {
-                // Show the skill container when the first skill is added
-                $(".skills-container").show();
-                addSkillRow();
-            });
-
-            // Remove a skill row when the "Remove" button is clicked
-            $(document).on("click", ".btn-remove-skill", function() {
-                $(this).closest(".skill-row").remove();
-            });
-
-            // Handle form submission
-            $("#create_employee_form").submit(function(e) {
-                e.preventDefault();
-                submitFormData();
-            });
-
-            // Initialize the datepicker
-            $(".datepicker").datepicker({
-                format: 'yyyy-mm-dd', // You can change the format to your preferred format
-                autoclose: true,
-                todayHighlight: true
-            });
         });
-    })(jQuery);
+    });
 </script>
-
 </body>
 </html>
